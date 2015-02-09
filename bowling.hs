@@ -1,11 +1,34 @@
 import Test.HUnit
 
-data Frame = Open Int Int | Spare Int Int | Strike deriving (Show)
+tests = TestList [
+    TestCase $ assertEqual "really bad game" 0 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0]),
+    TestCase $ assertEqual "perfect game" 300 (calcScore [ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]),
+    TestCase $ assertEqual "only open frames" 90 (calcScore [ 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0]),
+    TestCase $ assertEqual "only spares" 150 (calcScore [ 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5]),
+    TestCase $ assertEqual "10th frame strike" 11 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 10, 1, 0]),
+    TestCase $ assertEqual "9th frame strike" 12 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 10, 1,0]),
+    TestCase $ assertEqual "10th frame spare" 32 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 10, 0,10, 2])
+    ]
+
+main = do
+    runTestTT tests
 
 calcScore :: [Int] -> Int
 --calcScore = sum . take 10 . calculateScore . parseFrames
 calcScore = sum . take 10 . calcFrameScores
 
+-- ################## 2nd approach: ##################
+
+calcFrameScores :: [Int] -> [Int]
+calcFrameScores (t1 : t2 : t3 : ts)
+    | t1 == 10 = 10 + t2 + t3 : calcFrameScores (t2 : t3 : ts)
+    | t1 + t2 == 10 = 10 + t3 : calcFrameScores (t3 : ts)
+calcFrameScores (t1 : t2 : ts) = t1 + t2 : calcFrameScores ts
+--calcFrameScores _ = [] -- this line is not necessary thanks to haskell's lazy evaluation
+
+-- ################## 1st approach: ##################
+
+data Frame = Open Int Int | Spare Int Int | Strike deriving (Show)
 
 parseFrames :: [Int] -> [Frame]
 parseFrames [] = []
@@ -30,26 +53,3 @@ calcBonus 1 (Spare t1 _ : _) = t1
 calcBonus 2 (Open t1 t2 : _) = t1 + t2
 calcBonus 1 (Open t1 _ : _) = t1
 calcBonus _ [] = 0
-
-
--- 2nd approach:
-
-calcFrameScores :: [Int] -> [Int]
-calcFrameScores (10 : t2 : t3 : ts) = 10 + t2 + t3 : calcFrameScores (t2 : t3 : ts)
-calcFrameScores (t1 : t2 : t3 : ts)
-    | t1 + t2 == 10 = 10 + t3 : calcFrameScores (t3 : ts)
-calcFrameScores (t1 : t2 : ts) = t1 + t2 : calcFrameScores ts
---calcFrameScores _ = [] -- this line is not necessary thanks to haskell's lazy evaluation
-
-tests = TestList [
-    TestCase $ assertEqual "really bad game" 0 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0]),
-    TestCase $ assertEqual "perfect game" 300 (calcScore [ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]),
-    TestCase $ assertEqual "only open frames" 90 (calcScore [ 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0, 9,0]),
-    TestCase $ assertEqual "only spares" 150 (calcScore [ 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5,5, 5]),
-    TestCase $ assertEqual "10th frame strike" 11 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 10, 1, 0]),
-    TestCase $ assertEqual "9th frame strike" 12 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 10, 1,0]),
-    TestCase $ assertEqual "10th frame spare" 32 (calcScore [ 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 10, 0,10, 2])
-    ]
-
-main = do
-    runTestTT tests
