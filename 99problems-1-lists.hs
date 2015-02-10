@@ -47,3 +47,27 @@ myLength :: [a] -> Int
 --myLength [] = 0
 --myLength (_:xs) = 1 + myLength xs
 myLength = fst . last . zip [1..]
+
+-- problem5
+problem5 = TestList [
+    TestCase $ assertEqual "with ints" [4,3,2,1] (myReverse [1,2,3,4]),
+    TestCase $ assertEqual "with chars" "!amanap ,lanac a ,nalp a ,nam A" (myReverse "A man, a plan, a canal, panama!")
+    ]
+
+myReverse :: [a] -> [a]
+--myReverse [] = []
+--myReverse (x:xs) = myReverse xs ++ [x]
+--myReverse = foldl (\result x -> x : result) []
+myReverse = foldl (flip (:)) []
+
+--problem6
+problem6 = TestList [
+    TestCase $ assertEqual "no palindrome" False (isPalindrome [1,2,3]),
+    TestCase $ assertEqual "string palindrome" True (isPalindrome "madamimadam"),
+    TestCase $ assertEqual "int palindrome" True (isPalindrome [1,2,4,8,16,8,4,2,1])
+    ]
+
+isPalindrome :: (Eq a) => [a] -> Bool
+-- isPalindrome input = input == reverse input
+isPalindrome [] = True
+isPalindrome (x:xs) = last xs == x && isPalindrome (init xs)
