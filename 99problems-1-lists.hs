@@ -1,6 +1,7 @@
 -- https://wiki.haskell.org/99_questions/1_to_10
 
 import Test.HUnit
+import Data.List
 
 -- problem1
 problem1 = TestList [
@@ -22,6 +23,7 @@ problem2 = TestList [
 
 myButLast :: [a] -> a
 --myButLast = last . init
+
 --myButLast (x : _ : []) = x
 myButLast [x, _] = x
 myButLast (x:xs) = myButLast xs
@@ -57,10 +59,11 @@ problem5 = TestList [
 myReverse :: [a] -> [a]
 --myReverse [] = []
 --myReverse (x:xs) = myReverse xs ++ [x]
+
 --myReverse = foldl (\result x -> x : result) []
 myReverse = foldl (flip (:)) []
 
---problem6
+-- problem6
 problem6 = TestList [
     TestCase $ assertEqual "no palindrome" False (isPalindrome [1,2,3]),
     TestCase $ assertEqual "string palindrome" True (isPalindrome "madamimadam"),
@@ -71,3 +74,26 @@ isPalindrome :: (Eq a) => [a] -> Bool
 -- isPalindrome input = input == reverse input
 isPalindrome [] = True
 isPalindrome (x:xs) = last xs == x && isPalindrome (init xs)
+
+-- problem7
+data NestedList a = Elem a | List [NestedList a]
+
+problem7 = TestList [
+    TestCase $ assertEqual "single item" [5] (myFlatten (Elem 5)),
+    TestCase $ assertEqual "nested list" [1,2,3,4,5] (myFlatten (List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]))
+    ]
+
+myFlatten :: NestedList a -> [a]
+myFlatten (List xs) = foldl (\result x -> result ++ (myFlatten x)) [] xs
+myFlatten (Elem x) = [x]
+
+-- problem8
+problem8 = TestList [
+    TestCase $ assertEqual "with chars" "abcade" (compress "aaaabccaadeeee"),
+    TestCase $ assertEqual "with ints" [1,2,1] (compress [1, 1, 1, 2, 2, 1, 1])
+    ]
+
+compress :: (Eq a) => [a] -> [a]
+--compress (x1 : x2 : xs) = if x1 == x2 then x1 : compress xs else x1 : compress (x2:xs)
+--compress xs = xs
+compress = (map head) . group
