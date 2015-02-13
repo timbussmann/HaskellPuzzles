@@ -97,3 +97,22 @@ compress :: (Eq a) => [a] -> [a]
 --compress (x1 : x2 : xs) = if x1 == x2 then x1 : compress xs else x1 : compress (x2:xs)
 --compress xs = xs
 compress = (map head) . group
+
+-- problem9
+problem9 = TestList [
+    TestCase $ assertEqual "with chars" ["aaaa","b","cc","aa","d","eeee"] (myPack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e'])
+    ]
+
+myPack :: (Eq a) => [a] -> [[a]]
+--myPack = group
+
+-- myPack (all@(x:_)) = let res = span (==x) all
+--                 in fst res : myPack (snd res)
+-- myPack [] = []
+
+myPack xs = let (lastElement, resultList) = foldr addToList ([],[]) xs
+            in lastElement : resultList
+    where addToList x (current@(c:_), result) = if x == c
+                                             then (x:current, result)
+                                             else ([x], current : result)
+          addToList x ([], result) = ([x], result)
