@@ -107,12 +107,24 @@ myPack :: (Eq a) => [a] -> [[a]]
 --myPack = group
 
 -- myPack (all@(x:_)) = let res = span (==x) all
---                 in fst res : myPack (snd res)
+--                      in fst res : myPack (snd res)
 -- myPack [] = []
 
 myPack xs = let (lastElement, resultList) = foldr addToList ([],[]) xs
             in lastElement : resultList
     where addToList x (current@(c:_), result) = if x == c
-                                             then (x:current, result)
-                                             else ([x], current : result)
+                                                then (x:current, result)
+                                                else ([x], current : result)
           addToList x ([], result) = ([x], result)
+
+-- problem10
+problem10 = TestList [
+    TestCase $ assertEqual "with chars" [(4,'a'),(1,'b'),(2,'c'),(2,'a'),(1,'d'),(4,'e')] (myEncode "aaaabccaadeeee")
+    ]
+
+myEncode :: (Eq a) => [a] -> [(Int, a)]
+--myEncode [] = []
+--myEncode input@(x:xs) = let (same, rest) = span (==x) input
+--                        in (length same, head same) : myEncode rest
+
+myEncode input = [(length x, head x) | x <- myPack input]
