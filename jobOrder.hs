@@ -16,16 +16,20 @@ orderJobs input = let jobs = map parseJob (lines input)
                   in sortJobs jobs []
 
 parseJob :: String -> Job
-parseJob line = createJob (removeWhitespaces line)
+parseJob = createJob . removeWhitespaces
     where removeWhitespaces input = [x | x <- input, x /= ' ']
           createJob (j:'=':'>':[]) = Job j
           createJob (j:'=':'>':d:[]) = DependentJob j d
 
 sortJobs :: [Job] -> [Job] -> [Job]
+-- the job has no dependency -> add it to the result list
 sortJobs (job@(Job j):xs) result = sortJobs xs (job:result)
 sortJobs (job@(DependentJob j d):xs) result
+    -- the job has a dependency, which is already in the result list -> add the dependency
     | containsJob d result = sortJobs xs (job:result)
+    -- the dependency is not in the result list -> re-queue the job at the end of the jobs list
     | otherwise = sortJobs (xs ++ [job]) result
+-- since we use the ":" syntax to add jobs to the result, we have to reverse the result
 sortJobs [] result = reverse result
 
 containsJob :: Char -> [Job] -> Bool
