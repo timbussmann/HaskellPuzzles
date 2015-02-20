@@ -51,12 +51,28 @@ tests = TestList [
     TestLabel "single dependeny" (
         let result = orderJobs "a => \n b => c\n c =>"
         in TestList [
-        TestCase $assertEqual "contains 3 jobs" 3 (length result),
+        TestCase $ assertEqual "contains 3 jobs" 3 (length result),
         TestCase $ assertBool "contains job a" (containsJob 'a' result),
         TestCase $ assertBool "contains job b" (containsJob 'b' result),
         TestCase $ assertBool "contains job c" (containsJob 'c' result),
         TestCase $ assertBool "place dependency before dependent job"
             (findIndex (==(Job 'b')) result > findIndex (==(Job 'c')) result)
+        ]
+    ),
+    TestLabel "multiple dependencies" (
+        let result = orderJobs "a => c \n b => a \n c => \n d => b"
+        in TestList [
+        TestCase $ assertEqual "contains 4 jobs" 4 (length result),
+        TestCase $ assertBool "contains job a" (containsJob 'a' result),
+        TestCase $ assertBool "contains job b" (containsJob 'b' result),
+        TestCase $ assertBool "contains job c" (containsJob 'c' result),
+        TestCase $ assertBool "contains job c" (containsJob 'd' result),
+        TestCase $ assertBool "place c before a"
+            (findIndex (==(Job 'a')) result > findIndex (==(Job 'c')) result),
+        TestCase $ assertBool "place a before b"
+            (findIndex (==(Job 'b')) result > findIndex (==(Job 'a')) result),
+        TestCase $ assertBool "place b before d"
+            (findIndex (==(Job 'd')) result > findIndex (==(Job 'b')) result)
         ]
     )
     ]
