@@ -1,5 +1,6 @@
 import Test.HUnit
 import Data.List
+import Control.Exception
 
 data Job = Job Char | DependentJob Char Char deriving (Show)
 
@@ -13,7 +14,7 @@ valueOf (DependentJob j _) = j
 
 orderJobs :: String -> [Job]
 orderJobs input = let jobs = map parseJob (lines input)
-                  in sortJobs jobs []
+                  in sortJobs (verifyNonSelfReferencing jobs) []
 
 parseJob :: String -> Job
 parseJob = createJob . removeWhitespaces
@@ -31,6 +32,11 @@ sortJobs (job@(DependentJob j d):xs) result
     | otherwise = sortJobs (xs ++ [job]) result
 -- since we use the ":" syntax to add jobs to the result, we have to reverse the result
 sortJobs [] result = reverse result
+
+verifyNonSelfReferencing :: [Job] -> [Job]
+verifyNonSelfReferencing = map verifyJobDependency
+    where   verifyJobDependency job@(DependentJob j d) = if j == d then error "job depends on itself!" else job
+            verifyJobDependency j = j
 
 containsJob :: Char -> [Job] -> Bool
 containsJob expected jobs = elem (Job expected) jobs
@@ -78,5 +84,15 @@ tests = TestList [
         TestCase $ assertBool "place b before d"
             (findIndex (==(Job 'd')) result > findIndex (==(Job 'b')) result)
         ]
+    ),
+    TestLabel "self referencing job" (
+        TestCase $ do
+            errorRaised <- evaluate (orderJobs "a => \n b => b \n c => " `seq` False) `catch` handleError
+            if errorRaised
+                then return ()
+                else assertFailure "should throw an exception, but it didn't"
     )
     ]
+
+handleError :: ErrorCall -> IO Bool
+handleError _ = return True
