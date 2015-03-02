@@ -58,7 +58,7 @@ tests = TestList [
         TestCase $ assertEqual "contains job c" True (containsJob 'c' result)
         ]
     ),
-    TestLabel "single dependeny" (
+    TestLabel "single dependency" (
         let result = orderJobs "a => \n b => c\n c =>"
         in TestList [
         TestCase $ assertEqual "contains 3 jobs" 3 (length result),
@@ -91,7 +91,14 @@ tests = TestList [
             if errorRaised
                 then return ()
                 else assertFailure "should throw an exception, but it didn't"
-    )
+    ){-,
+    TestLabel "cyclic referencing jobs" (
+        TestCase $ do
+            errorRaised <- evaluate (orderJobs "a => b\n b => c \n c => d \n d => b" `seq` False) `catch` handleError
+            if errorRaised
+                then return ()
+                else assertFailure "should throw an exception, but it didn't"
+    )-}
     ]
 
 handleError :: ErrorCall -> IO Bool
