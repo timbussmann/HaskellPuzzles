@@ -30,9 +30,6 @@ findNext jobs = findNext' jobs (map fst jobs)
                 else Just current
             findNext' [] _ = Nothing
 
-containsJob :: Char -> [Job] -> Bool
-containsJob expected = elem (Job expected)
-
 tests = TestList [
     TestLabel "a single job" (
         let result = orderJobs "a =>"
@@ -92,6 +89,9 @@ tests = TestList [
                 else assertFailure "should throw an exception, but it didn't"
     )
     ]
+
+containsJob :: Char -> [Job] -> Bool
+containsJob expected = elem (Job expected)
 
 handleError :: ErrorCall -> IO Bool
 handleError _ = return True
