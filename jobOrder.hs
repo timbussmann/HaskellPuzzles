@@ -2,44 +2,27 @@ import Test.HUnit
 import Data.List
 import Control.Exception
 
-data Job = Job Char | DependentJob Char Char deriving (Show)
-
-instance Eq Job where
-    x == y = valueOf x == valueOf y
-    x /= y = not (x == y)
-
-valueOf :: Job -> Char
-valueOf (Job j) = j
-valueOf (DependentJob j _) = j
+data Job = Job Char deriving (Show, Eq)
 
 orderJobs :: String -> [Job]
 orderJobs input = let jobs = map parseJob (lines input)
-                  in sortJobs (verifyNonSelfReferencing jobs) []
+                  in sortJobs jobs []
 
-parseJob :: String -> Job
+parseJob :: String -> (Job, Maybe Job)
 parseJob = createJob . removeWhitespaces
     where removeWhitespaces input = [x | x <- input, x /= ' ']
-          createJob (j:'=':'>':[]) = Job j
-          createJob (j:'=':'>':d:[]) = DependentJob j d
+          createJob (j:'=':'>':[]) = (Job j, Nothing)
+          createJob (j:'=':'>':d:[]) = (Job j, Just (Job d))
 
-sortJobs :: [Job] -> [Job] -> [Job]
--- the job has no dependency -> add it to the result list
-sortJobs (job@(Job j):xs) result = sortJobs xs (job:result)
-sortJobs (job@(DependentJob j d):xs) result
-    -- the job has a dependency, which is already in the result list -> add the dependency
-    | containsJob d result = sortJobs xs (job:result)
-    -- the dependency is not in the result list -> re-queue the job at the end of the jobs list
-    | otherwise = sortJobs (xs ++ [job]) result
--- since we use the ":" syntax to add jobs to the result, we have to reverse the result
+sortJobs :: [(Job, Maybe Job)] -> [Job] -> [Job]
+sortJobs ((job, Nothing):remaining) result = sortJobs remaining (job:result)
+sortJobs (entry@(job, Just dependency):remaining) result
+    | dependency `elem` result = sortJobs remaining (job:result)
+    | otherwise = sortJobs (remaining ++ [entry]) result
 sortJobs [] result = reverse result
 
-verifyNonSelfReferencing :: [Job] -> [Job]
-verifyNonSelfReferencing = map verifyJobDependency
-    where   verifyJobDependency job@(DependentJob j d) = if j == d then error "job depends on itself!" else job
-            verifyJobDependency j = j
-
 containsJob :: Char -> [Job] -> Bool
-containsJob expected jobs = elem (Job expected) jobs
+containsJob expected = elem (Job expected)
 
 tests = TestList [
     TestLabel "a single job" (
