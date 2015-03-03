@@ -17,6 +17,7 @@ parseJob = createJob . removeWhitespaces
 sortJobs :: [(Job, Maybe Job)] -> [Job] -> [Job]
 sortJobs ((job, Nothing):remaining) result = sortJobs remaining (job:result)
 sortJobs (entry@(job, Just dependency):remaining) result
+    | job == dependency = error "self referencing job!"
     | dependency `elem` result = sortJobs remaining (job:result)
     | otherwise = sortJobs (remaining ++ [entry]) result
 sortJobs [] result = reverse result
