@@ -1,5 +1,6 @@
 import Test.HUnit
 import Data.List
+import Data.Maybe
 import Control.Exception
 
 data Job = Job Char deriving (Show, Eq)
@@ -15,12 +16,19 @@ parseJob = createJob . removeWhitespaces
           createJob (j:'=':'>':d:[]) = (Job j, Just (Job d))
 
 sortJobs :: [(Job, Maybe Job)] -> [Job] -> [Job]
-sortJobs ((job, Nothing):remaining) result = sortJobs remaining (job:result)
-sortJobs (entry@(job, Just dependency):remaining) result
-    | job == dependency = error "self referencing job!"
-    | dependency `elem` result = sortJobs remaining (job:result)
-    | otherwise = sortJobs (remaining ++ [entry]) result
 sortJobs [] result = reverse result
+sortJobs jobs result = case findNext jobs of
+                        Nothing -> error "cyclic reference!"
+                        Just row@(job, _) -> sortJobs (delete row jobs) (job:result)
+
+findNext :: [(Job, Maybe Job)] -> Maybe (Job, Maybe Job)
+findNext jobs = findNext' jobs (map fst jobs)
+    where   findNext' (current@(_, Nothing):_) _ = Just current
+            findNext' (current@(_, Just dependency):remaining) unordered =
+                if elem dependency unordered
+                then findNext' remaining unordered
+                else Just current
+            findNext' [] _ = Nothing
 
 containsJob :: Char -> [Job] -> Bool
 containsJob expected = elem (Job expected)
@@ -75,14 +83,14 @@ tests = TestList [
             if errorRaised
                 then return ()
                 else assertFailure "should throw an exception, but it didn't"
-    ){-,
+    ),
     TestLabel "cyclic referencing jobs" (
         TestCase $ do
             errorRaised <- evaluate (orderJobs "a => b\n b => c \n c => d \n d => b" `seq` False) `catch` handleError
             if errorRaised
                 then return ()
                 else assertFailure "should throw an exception, but it didn't"
-    )-}
+    )
     ]
 
 handleError :: ErrorCall -> IO Bool
