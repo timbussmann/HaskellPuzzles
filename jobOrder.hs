@@ -6,20 +6,20 @@ import Control.Exception
 data Job = Job Char deriving (Show, Eq)
 
 orderJobs :: String -> [Job]
-orderJobs input = let jobs = map parseJob (lines input)
-                  in sortJobs jobs []
+orderJobs = sortJobs . map parseJob . lines
 
 parseJob :: String -> (Job, Maybe Job)
 parseJob = createJob . removeWhitespaces
-    where removeWhitespaces input = [x | x <- input, x /= ' ']
+    where removeWhitespaces line = [x | x <- line, x /= ' ']
           createJob (j:'=':'>':[]) = (Job j, Nothing)
           createJob (j:'=':'>':d:[]) = (Job j, Just (Job d))
 
-sortJobs :: [(Job, Maybe Job)] -> [Job] -> [Job]
-sortJobs [] result = reverse result
-sortJobs jobs result = case findNext jobs of
-                        Nothing -> error "cyclic reference!"
-                        Just row@(job, _) -> sortJobs (delete row jobs) (job:result)
+sortJobs :: [(Job, Maybe Job)] -> [Job]
+sortJobs jobs = sort jobs []
+    where   sort [] result = reverse result
+            sort jobs result = case findNext jobs of
+                                    Nothing -> error "cyclic reference!"
+                                    Just row@(job, _) -> sort (delete row jobs) (job:result)
 
 findNext :: [(Job, Maybe Job)] -> Maybe (Job, Maybe Job)
 findNext jobs = findNext' jobs (map fst jobs)
