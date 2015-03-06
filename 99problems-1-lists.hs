@@ -128,3 +128,38 @@ myEncode :: (Eq a) => [a] -> [(Int, a)]
 --                        in (length same, head same) : myEncode rest
 
 myEncode input = [(length x, head x) | x <- myPack input]
+
+-- problem14
+problem14 = TestList [
+    TestCase $ assertEqual "should duplicate elements" [1,1,2,2,3,3] (myDuplicate [1,2,3])
+    ]
+
+myDuplicate :: [a] -> [a]
+myDuplicate [] = []
+myDuplicate (x:xs) = x : x : myDuplicate xs
+
+-- problem15
+problem15 = TestList [
+    TestCase $ assertEqual "should replicate elements" "aaabbbccc" (myReplicate "abc" 3)
+    ]
+
+myReplicate :: [a] -> Int -> [a]
+--myReplicate elements r = foldr (\e result -> add e r result) [] elements
+--    where   add element 0 result = result
+--            add element r result = element : add element (r - 1) result
+
+myReplicate elements r = concatMap (take r . repeat) elements
+
+-- problem16
+problem16 = TestList [
+    TestCase $ assertEqual "should drop elements" "abdeghk" (myDrop "abcdefghik" 3)
+    ]
+
+myDrop :: [a] -> Int -> [a]
+-- myDrop xs n = drop xs 1
+--     where drop (x:xs) c
+--             | c == n = drop xs 1
+--             | otherwise = x : (drop xs (c + 1))
+--           drop [] c = []
+
+myDrop xs n = (map snd . filter (\e -> (fst e) /= n) . zip (cycle [1..n])) xs
