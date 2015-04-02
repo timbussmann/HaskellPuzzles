@@ -163,3 +163,13 @@ myDrop :: [a] -> Int -> [a]
 --           drop [] c = []
 
 myDrop xs n = (map snd . filter (\e -> (fst e) /= n) . zip (cycle [1..n])) xs
+
+-- problem17
+problem17 = TestList [
+    TestCase $ assertEqual "should split list in two parts" ("abc", "defghik") (mySplit "abcdefghik" 3)
+    ]
+
+mySplit :: [a] -> Int -> ([a], [a])
+mySplit xs 0 = ([], xs)
+mySplit (x:xs) c =  let (a,b) = mySplit xs (c - 1)
+                    in ((x:a), b)
