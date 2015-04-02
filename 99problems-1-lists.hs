@@ -194,3 +194,12 @@ myRotate xs 0 = xs
 myRotate a@(x:xs) n
     | n > 0 = myRotate (xs ++ [x]) (n - 1)
     | n < 0 = myRotate a (length a + n)
+
+-- problem20
+problem20 = TestList [
+    TestCase $ assertEqual "should remove n'th element from the result" ('b', "acd") $ myRemoveAt 2 "abcd"
+    ]
+
+myRemoveAt :: Int -> [a] -> (a, [a])
+myRemoveAt 1 (x:xs) = (x, xs)
+myRemoveAt n (x:xs) = let (a, b) = myRemoveAt (n - 1) xs in (a, x:b)
