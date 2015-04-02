@@ -182,3 +182,15 @@ problem18 = TestList [
 mySlice :: [a] -> Int -> Int -> [a]
 mySlice xs i k = take (k - i') (drop i' xs)
                     where i' = i - 1
+
+-- problem19
+problem19 = TestList [
+    TestCase $ assertEqual "should rotate elements to the right" "defghabc" $ myRotate "abcdefgh" 3,
+    TestCase $ assertEqual "should rotate elements to the left" "ghabcdef" $ myRotate "abcdefgh" (-2)
+    ]
+
+myRotate :: [a] -> Int -> [a]
+myRotate xs 0 = xs
+myRotate a@(x:xs) n
+    | n > 0 = myRotate (xs ++ [x]) (n - 1)
+    | n < 0 = myRotate a (length a + n)
