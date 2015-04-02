@@ -173,3 +173,12 @@ mySplit :: [a] -> Int -> ([a], [a])
 mySplit xs 0 = ([], xs)
 mySplit (x:xs) c =  let (a,b) = mySplit xs (c - 1)
                     in ((x:a), b)
+
+-- problem18
+problem18 = TestList [
+    TestCase $ assertEqual "should take elements between i'th and k'th element" "defg" (mySlice "abcdefghik" 4 7)
+    ]
+
+mySlice :: [a] -> Int -> Int -> [a]
+mySlice xs i k = take (k - i') (drop i' xs)
+                    where i' = i - 1
