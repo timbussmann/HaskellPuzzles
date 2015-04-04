@@ -1,4 +1,6 @@
 -- https://wiki.haskell.org/99_questions/1_to_10
+-- https://wiki.haskell.org/99_questions/11_to_20
+-- https://wiki.haskell.org/99_questions/21_to_28
 
 import Test.HUnit
 import Data.List
@@ -203,3 +205,23 @@ problem20 = TestList [
 myRemoveAt :: Int -> [a] -> (a, [a])
 myRemoveAt 1 (x:xs) = (x, xs)
 myRemoveAt n (x:xs) = let (a, b) = myRemoveAt (n - 1) xs in (a, x:b)
+
+-- problem21
+problem21 = TestList [
+    TestCase $ assertEqual "should insert item at position" "aXbcd" $ myInsertAt 'X' "abcd" 2
+    ]
+
+myInsertAt :: a -> [a] -> Int -> [a]
+myInsertAt c xs 1 = c : xs
+myInsertAt c (x:xs) n = x : (myInsertAt c xs (n - 1))
+
+-- problem22
+problem22 = TestList [
+    TestCase $ assertEqual "create integers within a given range" [4,5,6,7,8,9] $ myRange 4 9
+    ]
+
+myRange :: Int -> Int -> [Int]
+--myRange start end = [start..end]
+myRange start end
+    | start < end = start : myRange (start + 1) end
+    | start == end = [end]
