@@ -36,3 +36,11 @@ myGCD x y
         | x == y = x
         | x > y = myGCD (x `mod` y) y
         | x < y = myGCD (y `mod` x) x
+
+
+problem33 = TestList [
+    TestCase (assertEqual "" True $ myCoprime 35 64),
+    TestCase (assertEqual "" False $ myCoprime 4 6)
+    ]
+
+myCoprime x y = (myGCD x y) == 1
