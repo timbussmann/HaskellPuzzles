@@ -43,4 +43,4 @@ problem33 = TestList [
     TestCase (assertEqual "" False $ myCoprime 4 6)
     ]
 
-myCoprime x y = (myGCD x y) == 1
+myCoprime x y = myGCD x y == 1
