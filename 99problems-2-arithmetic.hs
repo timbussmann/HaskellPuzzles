@@ -43,4 +43,5 @@ problem33 = TestList [
     TestCase (assertEqual "" False $ myCoprime 4 6)
     ]
 
+myCoprime :: Int -> Int -> Bool
 myCoprime x y = myGCD x y == 1
