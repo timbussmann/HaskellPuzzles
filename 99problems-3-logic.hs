@@ -40,10 +40,11 @@ problem47 = TestCase $ assertEqual "" [
         (table (\a b -> a `and'` (a `or'` not b)))
 
 
-problem48 = TestCase $ 
+problem49 = TestCase $ 
     assertEqual "" ["000","001","010","011","100","101","110","111"] (gray 3)
 
 gray :: Int -> [String]
 gray 0 = [""]
 gray n = let prev = gray (n - 1) in map ('0':) prev ++ map ('1':) prev
 -- gray n = foldr (\s acc -> ("0" ++ s):("1" ++ s):acc) [] $ gray (n-1)
+
