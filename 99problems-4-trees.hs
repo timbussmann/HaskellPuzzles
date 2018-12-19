@@ -34,11 +34,29 @@ problem56 = TestList [
     TestCase $ assertEqual "when complex tree is symmetric" True (symmetric (Branch 'x' (Branch 'x' (Branch 'x' Empty Empty) Empty) (Branch 'x' Empty  (Branch 'x' Empty Empty))))
     ]
 
-symmetric :: Tree Char -> Bool
+symmetric :: Tree a -> Bool
 symmetric Empty = True
 symmetric (Branch _ l r) = mirror l r
 
 mirror :: Tree a -> Tree a -> Bool
 mirror Empty Empty = True
-mirror (Branch _ l1 r1) (Branch _ l2 r2) = mirror l1 r2 && mirror r1 l2 -- ignore values for now
+mirror (Branch _ l1 r1) (Branch _ l2 r2) = mirror l1 r2 && mirror r1 l2 -- ignore values
 mirror _ _ = False
+
+
+problem57 = TestList [
+    TestCase $ assertEqual "construction" (Branch 3 (Branch 2 (Branch 1 Empty Empty) Empty) (Branch 5 Empty (Branch 7 Empty Empty))) (construct [3,2,5,7,1]),
+    let l = construct [5,3,18,1,4,12,21]
+    in TestCase $ assertEqual "symmetric construction" True (symmetric l),
+    let l = construct [3,2,5,7,4]
+    in TestCase $ assertEqual "asymmetric construction" False (symmetric l)
+    ]
+
+construct :: (Ord a) => [a] -> Tree a
+construct xs = foldl (flip add) Empty xs
+
+add :: (Ord a) => a -> Tree a -> Tree a
+add x Empty = Branch x Empty Empty
+add x (Branch y l r)
+    | x > y = Branch y l (add x r)
+    | x < y = Branch y (add x l) r
