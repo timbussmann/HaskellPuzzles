@@ -60,3 +60,19 @@ add x Empty = Branch x Empty Empty
 add x (Branch y l r)
     | x > y = Branch y l (add x r)
     | x < y = Branch y (add x l) r
+
+tree4 = Branch 1 
+            (Branch 2 
+                Empty 
+                (Branch 4 Empty Empty)) 
+            (Branch 2 Empty Empty)
+
+problem61 = TestList [
+    TestCase $ assertEqual "" 0 (countLeaves Empty),
+    TestCase $ assertEqual "" 2 (countLeaves tree4)
+    ]
+
+countLeaves :: Tree a -> Int
+countLeaves Empty = 0
+countLeaves (Branch _ Empty Empty) = 1
+countLeaves (Branch _ l r) = countLeaves l + countLeaves r
