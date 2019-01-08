@@ -62,7 +62,7 @@ add x (Branch y l r)
     | x < y = Branch y (add x l) r
 
 tree4 = Branch 1 
-            (Branch 2 
+            (Branch 3 
                 Empty 
                 (Branch 4 Empty Empty)) 
             (Branch 2 Empty Empty)
@@ -76,3 +76,10 @@ countLeaves :: Tree a -> Int
 countLeaves Empty = 0
 countLeaves (Branch _ Empty Empty) = 1
 countLeaves (Branch _ l r) = countLeaves l + countLeaves r
+
+problem61a = TestCase $ assertEqual "" [4,2] (leaves tree4)
+
+leaves :: Tree a -> [a]
+leaves Empty = []
+leaves (Branch x Empty Empty) = [x]
+leaves (Branch _ l r) = leaves l ++ leaves r
